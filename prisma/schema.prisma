@@ -1,0 +1,63 @@
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "binary"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(cuid())
+  name          String
+  phone         String         @unique
+  registrations Registration[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model Event {
+  id             String         @id @default(cuid())
+  title          String
+  eventDate      DateTime
+  startTime      String
+  endTime        String
+  venueName      String
+  venueAddress   String
+  capacity       Int
+  signupDeadline DateTime
+  description    String
+  status         String         @default("OPEN")
+  registrations  Registration[]
+  notice         Notice?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([eventDate, status])
+}
+
+model Registration {
+  id               String             @id @default(cuid())
+  eventId          String
+  userId           String
+  status           String   @default("CONFIRMED")
+  createdAt        DateTime           @default(now())
+  canceledAt       DateTime?
+  waitlistPosition Int?
+  event            Event              @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  user             User               @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@unique([eventId, userId])
+  @@index([eventId, status, waitlistPosition])
+  @@index([userId, status])
+}
+
+model Notice {
+  id        String   @id @default(cuid())
+  eventId   String   @unique
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  event     Event    @relation(fields: [eventId], references: [id], onDelete: Cascade)
+}
