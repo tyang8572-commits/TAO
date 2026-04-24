@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
 import { DatabaseSync } from "node:sqlite";
@@ -100,12 +101,46 @@ function resolveSqlitePath(url = getDatabaseUrl()) {
   return path.resolve(process.cwd(), "prisma", rawPath);
 }
 
+function getSqliteCandidates() {
+  const candidates: string[] = [];
+
+  try {
+    candidates.push(resolveSqlitePath());
+  } catch {
+    // Fall back to runtime-safe locations below.
+  }
+
+  if (process.env.NETLIFY) {
+    candidates.push(path.join(os.tmpdir(), "badminton-signup.db"));
+  }
+
+  candidates.push(":memory:");
+
+  return [...new Set(candidates)];
+}
+
 function getSqliteDb() {
   if (!global.sqliteDb) {
-    const dbPath = resolveSqlitePath();
-    fs.mkdirSync(path.dirname(dbPath), { recursive: true });
-    global.sqliteDb = new DatabaseSync(dbPath);
-    global.sqliteDb.exec("PRAGMA foreign_keys = ON");
+    let lastError: unknown;
+
+    for (const dbPath of getSqliteCandidates()) {
+      try {
+        if (dbPath !== ":memory:") {
+          fs.mkdirSync(path.dirname(dbPath), { recursive: true });
+        }
+
+        const sqlite = new DatabaseSync(dbPath);
+        sqlite.exec("PRAGMA foreign_keys = ON");
+        global.sqliteDb = sqlite;
+        break;
+      } catch (error) {
+        lastError = error;
+      }
+    }
+
+    if (!global.sqliteDb) {
+      throw lastError instanceof Error ? lastError : new Error("无法初始化 SQLite 数据库");
+    }
   }
 
   return global.sqliteDb;
