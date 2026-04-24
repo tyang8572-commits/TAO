@@ -19,7 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="zh-CN">
       <body>
         <SiteNav />
-        <main className="mx-auto flex min-h-[calc(100vh-84px)] w-full max-w-screen-sm flex-col px-3 py-4 sm:min-h-[calc(100vh-64px)] sm:px-4 sm:py-6">
+        <main className="mx-auto flex min-h-[calc(100vh-92px)] w-full max-w-screen-sm flex-col px-3 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-4 sm:min-h-[calc(100vh-64px)] sm:px-4 sm:py-6">
           {children}
         </main>
       </body>

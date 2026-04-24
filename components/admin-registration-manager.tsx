@@ -35,7 +35,7 @@ function RegistrationSection({
         ) : (
           items.map((item) => (
             <div key={item.id} className="rounded-2xl border border-slate-200 p-4">
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                   <div className="flex items-center gap-2">
                     <p className="font-semibold text-ink">{item.name}</p>
@@ -49,7 +49,7 @@ function RegistrationSection({
                 <button
                   type="button"
                   onClick={() => onDelete(item.id)}
-                  className="rounded-xl bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700"
+                  className="rounded-xl bg-rose-50 px-3 py-3 text-xs font-semibold text-rose-700"
                 >
                   删除
                 </button>
@@ -136,16 +136,22 @@ export function AdminRegistrationManager({ eventId, confirmedList, waitlistList 
     <div className="space-y-5">
       <div className="rounded-[28px] border border-white/80 bg-white p-5 shadow-card">
         <h3 className="text-lg font-bold text-ink">手动新增报名</h3>
+        <p className="mt-2 text-sm leading-6 text-slate-500">适合管理员临时帮人补录，手机上也能快速操作。</p>
         <div className="mt-4 grid gap-3">
-          <input placeholder="姓名" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+          <input
+            placeholder="姓名"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            aria-label="手动新增报名姓名"
+          />
         </div>
         {message && <p className="mt-3 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-brand-700">{message}</p>}
         {error && <p className="mt-3 rounded-2xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{error}</p>}
         <button
           type="button"
-          disabled={loading}
+          disabled={loading || !normalizeName(form.name)}
           onClick={onAdd}
-          className="mt-4 rounded-2xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white disabled:bg-brand-300"
+          className="mt-4 w-full rounded-2xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white disabled:bg-brand-300"
         >
           {loading ? "处理中..." : "新增报名"}
         </button>

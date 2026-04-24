@@ -24,7 +24,7 @@ export default async function AdminRegistrationsPage({ params }: { params: { id:
   return (
     <div className="space-y-5">
       <div className="rounded-[28px] border border-white/80 bg-white p-5 shadow-card">
-        <div className="flex items-start justify-between gap-3">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-xl font-bold text-ink">{event.title}</h2>
             <p className="mt-2 text-sm text-slate-500">
@@ -34,16 +34,16 @@ export default async function AdminRegistrationsPage({ params }: { params: { id:
           </div>
           <a
             href={`/api/admin/events/${event.id}/export`}
-            className="rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold text-white"
+            className="rounded-2xl bg-emerald-600 px-4 py-3 text-center text-sm font-semibold text-white"
           >
             导出 CSV
           </a>
         </div>
-        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-          <Link href={`/admin/events/${event.id}/edit`} className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700">
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:flex sm:flex-row">
+          <Link href={`/admin/events/${event.id}/edit`} className="rounded-2xl bg-slate-100 px-4 py-3 text-center text-sm font-semibold text-slate-700">
             编辑活动
           </Link>
-          <Link href={`/events/${event.id}`} className="rounded-2xl bg-brand-50 px-4 py-3 text-sm font-semibold text-brand-700">
+          <Link href={`/events/${event.id}`} className="rounded-2xl bg-brand-50 px-4 py-3 text-center text-sm font-semibold text-brand-700">
             查看用户端页面
           </Link>
         </div>

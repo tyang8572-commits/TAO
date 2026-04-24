@@ -42,19 +42,22 @@ export default async function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="mt-4 flex flex-wrap gap-3">
-            <Link href={`/admin/events/${event.id}/edit`} className="rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white">
+          <div className="mt-4 grid grid-cols-1 gap-3 sm:flex sm:flex-wrap">
+            <Link
+              href={`/admin/events/${event.id}/edit`}
+              className="rounded-2xl bg-ink px-4 py-3 text-center text-sm font-semibold text-white"
+            >
               编辑活动
             </Link>
             <Link
               href={`/admin/events/${event.id}/registrations`}
-              className="rounded-2xl bg-brand-600 px-4 py-3 text-sm font-semibold text-white"
+              className="rounded-2xl bg-brand-600 px-4 py-3 text-center text-sm font-semibold text-white"
             >
               管理报名
             </Link>
             <form action={`/api/admin/events/${event.id}`} method="post">
               <input type="hidden" name="_method" value="DELETE" />
-              <button className="rounded-2xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">删除活动</button>
+              <button className="w-full rounded-2xl bg-rose-50 px-4 py-3 text-sm font-semibold text-rose-700">删除活动</button>
             </form>
           </div>
         </div>
