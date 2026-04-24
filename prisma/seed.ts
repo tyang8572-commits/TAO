@@ -12,7 +12,7 @@ async function insertUser(name: string, phone: string) {
   const id = createId();
   const now = nowIso();
 
-  await dbRun(`INSERT INTO "User" (id, name, phone, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)`, [
+  await dbRun(`INSERT INTO "User" ("id", "name", "phone", "createdAt", "updatedAt") VALUES (?, ?, ?, ?, ?)`, [
     id,
     name,
     phone,
@@ -41,7 +41,7 @@ async function insertEvent(params: {
   await dbRun(
     `
       INSERT INTO "Event"
-      (id, title, eventDate, startTime, endTime, venueName, venueAddress, capacity, signupDeadline, description, status, createdAt, updatedAt)
+      ("id", "title", "eventDate", "startTime", "endTime", "venueName", "venueAddress", "capacity", "signupDeadline", "description", "status", "createdAt", "updatedAt")
       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     [
@@ -65,7 +65,7 @@ async function insertEvent(params: {
 async function insertNotice(eventId: string, content: string) {
   const now = nowIso();
 
-  await dbRun(`INSERT INTO "Notice" (id, eventId, content, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)`, [
+  await dbRun(`INSERT INTO "Notice" ("id", "eventId", "content", "createdAt", "updatedAt") VALUES (?, ?, ?, ?, ?)`, [
     createId(),
     eventId,
     content,
@@ -82,7 +82,7 @@ async function insertRegistration(params: {
 }) {
   await dbRun(
     `
-      INSERT INTO "Registration" (id, eventId, userId, status, createdAt, canceledAt, waitlistPosition)
+      INSERT INTO "Registration" ("id", "eventId", "userId", "status", "createdAt", "canceledAt", "waitlistPosition")
       VALUES (?, ?, ?, ?, ?, NULL, ?)
     `,
     [createId(), params.eventId, params.userId, params.status, nowIso(), params.waitlistPosition]

@@ -36,10 +36,10 @@ function getEventCountMaps() {
     total: number;
   }>(
     `
-      SELECT eventId, status, COUNT(*) AS total
+      SELECT "eventId", "status", COUNT(*) AS total
       FROM "Registration"
-      WHERE status IN (?, ?)
-      GROUP BY eventId, status
+      WHERE "status" IN (?, ?)
+      GROUP BY "eventId", "status"
     `,
     [REGISTRATION_STATUS.CONFIRMED, REGISTRATION_STATUS.WAITLIST]
   ).then((rows) => {
@@ -119,8 +119,8 @@ export async function getPublicEvents() {
     `
       SELECT e.*, n.content AS notice
       FROM "Event" e
-      LEFT JOIN "Notice" n ON n.eventId = e.id
-      ORDER BY e.eventDate ASC, e.startTime ASC
+      LEFT JOIN "Notice" n ON n."eventId" = e."id"
+      ORDER BY e."eventDate" ASC, e."startTime" ASC
     `
   );
 
@@ -141,8 +141,8 @@ export async function getAdminEvents() {
     `
       SELECT e.*, n.content AS notice
       FROM "Event" e
-      LEFT JOIN "Notice" n ON n.eventId = e.id
-      ORDER BY e.eventDate DESC, e.startTime DESC
+      LEFT JOIN "Notice" n ON n."eventId" = e."id"
+      ORDER BY e."eventDate" DESC, e."startTime" DESC
     `
   );
 
@@ -161,8 +161,8 @@ export async function getEventDetail(eventId: string): Promise<EventDetail | nul
     `
       SELECT e.*, n.content AS notice
       FROM "Event" e
-      LEFT JOIN "Notice" n ON n.eventId = e.id
-      WHERE e.id = ?
+      LEFT JOIN "Notice" n ON n."eventId" = e."id"
+      WHERE e."id" = ?
     `,
     [eventId]
   );
@@ -171,14 +171,14 @@ export async function getEventDetail(eventId: string): Promise<EventDetail | nul
 
   const registrations = await dbAll<RegistrationRow>(
     `
-      SELECT r.id, r.status, r.createdAt, r.canceledAt, r.waitlistPosition, u.name
+      SELECT r."id", r."status", r."createdAt", r."canceledAt", r."waitlistPosition", u."name"
       FROM "Registration" r
-      INNER JOIN "User" u ON u.id = r.userId
-      WHERE r.eventId = ?
+      INNER JOIN "User" u ON u."id" = r."userId"
+      WHERE r."eventId" = ?
       ORDER BY
-        CASE WHEN r.status = '${REGISTRATION_STATUS.CONFIRMED}' THEN 0 ELSE 1 END,
-        r.waitlistPosition ASC,
-        r.createdAt ASC
+        CASE WHEN r."status" = '${REGISTRATION_STATUS.CONFIRMED}' THEN 0 ELSE 1 END,
+        r."waitlistPosition" ASC,
+        r."createdAt" ASC
     `,
     [eventId]
   );
@@ -219,20 +219,20 @@ export async function getMyRegistrations(name: string) {
   }>(
     `
       SELECT
-        r.id,
-        r.eventId,
-        r.status,
-        r.createdAt,
-        e.title AS eventTitle,
-        e.eventDate,
-        e.startTime,
-        e.endTime,
-        e.venueName
+        r."id",
+        r."eventId",
+        r."status",
+        r."createdAt",
+        e."title" AS "eventTitle",
+        e."eventDate",
+        e."startTime",
+        e."endTime",
+        e."venueName"
       FROM "Registration" r
-      INNER JOIN "User" u ON u.id = r.userId
-      INNER JOIN "Event" e ON e.id = r.eventId
-      WHERE ${buildNameMatchExpression("u.name")} = ?
-      ORDER BY r.createdAt DESC
+      INNER JOIN "User" u ON u."id" = r."userId"
+      INNER JOIN "Event" e ON e."id" = r."eventId"
+      WHERE ${buildNameMatchExpression('u."name"')} = ?
+      ORDER BY r."createdAt" DESC
     `,
     [nameKey]
   );

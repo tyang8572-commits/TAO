@@ -14,7 +14,7 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
     return NextResponse.json({ error: "未登录" }, { status: 401 });
   }
 
-  const event = (await dbGet(`SELECT title FROM "Event" WHERE id = ?`, [params.id])) as
+  const event = (await dbGet(`SELECT "title" FROM "Event" WHERE "id" = ?`, [params.id])) as
     | { title: string }
     | undefined;
 
@@ -24,14 +24,14 @@ export async function GET(_: Request, { params }: { params: { id: string } }) {
 
   const registrations = (await dbAll(
     `
-      SELECT u.name, r.status, r.createdAt, r.waitlistPosition
+      SELECT u."name", r."status", r."createdAt", r."waitlistPosition"
       FROM "Registration" r
-      INNER JOIN "User" u ON u.id = r.userId
-      WHERE r.eventId = ? AND r.status IN (?, ?)
+      INNER JOIN "User" u ON u."id" = r."userId"
+      WHERE r."eventId" = ? AND r."status" IN (?, ?)
       ORDER BY
-        CASE WHEN r.status = '${REGISTRATION_STATUS.CONFIRMED}' THEN 0 ELSE 1 END,
-        r.waitlistPosition ASC,
-        r.createdAt ASC
+        CASE WHEN r."status" = '${REGISTRATION_STATUS.CONFIRMED}' THEN 0 ELSE 1 END,
+        r."waitlistPosition" ASC,
+        r."createdAt" ASC
     `,
     [params.id, REGISTRATION_STATUS.CONFIRMED, REGISTRATION_STATUS.WAITLIST]
   )) as Array<{

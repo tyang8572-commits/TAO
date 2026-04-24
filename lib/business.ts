@@ -47,14 +47,14 @@ async function resequenceWaitlist(db: TxExecutor, eventId: string) {
     `
       SELECT id
       FROM "Registration"
-      WHERE eventId = ? AND status = ?
-      ORDER BY waitlistPosition ASC, createdAt ASC
+      WHERE "eventId" = ? AND "status" = ?
+      ORDER BY "waitlistPosition" ASC, "createdAt" ASC
     `,
     [eventId, REGISTRATION_STATUS.WAITLIST]
   );
 
   for (const [index, item] of waitlist.entries()) {
-    await db.run(`UPDATE "Registration" SET waitlistPosition = ? WHERE id = ?`, [index + 1, item.id]);
+    await db.run(`UPDATE "Registration" SET "waitlistPosition" = ? WHERE "id" = ?`, [index + 1, item.id]);
   }
 }
 
@@ -63,8 +63,8 @@ async function promoteNextWaitlist(db: TxExecutor, eventId: string) {
     `
       SELECT id
       FROM "Registration"
-      WHERE eventId = ? AND status = ?
-      ORDER BY waitlistPosition ASC, createdAt ASC
+      WHERE "eventId" = ? AND "status" = ?
+      ORDER BY "waitlistPosition" ASC, "createdAt" ASC
       LIMIT 1
     `,
     [eventId, REGISTRATION_STATUS.WAITLIST]
@@ -72,7 +72,7 @@ async function promoteNextWaitlist(db: TxExecutor, eventId: string) {
 
   if (!next) return;
 
-  await db.run(`UPDATE "Registration" SET status = ?, waitlistPosition = NULL WHERE id = ?`, [
+  await db.run(`UPDATE "Registration" SET "status" = ?, "waitlistPosition" = NULL WHERE "id" = ?`, [
     REGISTRATION_STATUS.CONFIRMED,
     next.id
   ]);
@@ -95,7 +95,7 @@ export async function createRegistration(params: {
       eventDate: string;
       startTime: string;
       endTime: string;
-    }>(`SELECT * FROM "Event" WHERE id = ?`, [eventId]);
+    }>(`SELECT * FROM "Event" WHERE "id" = ?`, [eventId]);
 
     if (!event) {
       throw new Error("活动不存在");
@@ -107,16 +107,16 @@ export async function createRegistration(params: {
 
     const now = nowIso();
     const existingUser = await db.get<{ id: string }>(
-      `SELECT id FROM "User" WHERE ${buildNameMatchExpression("name")} = ? LIMIT 1`,
+      `SELECT "id" FROM "User" WHERE ${buildNameMatchExpression('"name"')} = ? LIMIT 1`,
       [nameKey]
     );
     let userId = existingUser?.id;
 
     if (userId) {
-      await db.run(`UPDATE "User" SET name = ?, updatedAt = ? WHERE id = ?`, [normalizedName, now, userId]);
+      await db.run(`UPDATE "User" SET "name" = ?, "updatedAt" = ? WHERE "id" = ?`, [normalizedName, now, userId]);
     } else {
       userId = createId();
-      await db.run(`INSERT INTO "User" (id, name, phone, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)`, [
+      await db.run(`INSERT INTO "User" ("id", "name", "phone", "createdAt", "updatedAt") VALUES (?, ?, ?, ?, ?)`, [
         userId,
         normalizedName,
         buildInternalPhone(nameKey),
@@ -129,8 +129,8 @@ export async function createRegistration(params: {
       `
         SELECT r.id, r.status
         FROM "Registration" r
-        INNER JOIN "User" u ON u.id = r.userId
-        WHERE r.eventId = ? AND ${buildNameMatchExpression("u.name")} = ?
+        INNER JOIN "User" u ON u."id" = r."userId"
+        WHERE r."eventId" = ? AND ${buildNameMatchExpression('u."name"')} = ?
         LIMIT 1
       `,
       [eventId, nameKey]
@@ -143,7 +143,7 @@ export async function createRegistration(params: {
     const confirmedCount = Number(
       (
         (await db.get<{ total: number }>(
-          `SELECT COUNT(*) AS total FROM "Registration" WHERE eventId = ? AND status = ?`,
+          `SELECT COUNT(*) AS total FROM "Registration" WHERE "eventId" = ? AND "status" = ?`,
           [eventId, REGISTRATION_STATUS.CONFIRMED]
         )) || { total: 0 }
       ).total
@@ -152,7 +152,7 @@ export async function createRegistration(params: {
     const waitlistCount = Number(
       (
         (await db.get<{ total: number }>(
-          `SELECT COUNT(*) AS total FROM "Registration" WHERE eventId = ? AND status = ?`,
+          `SELECT COUNT(*) AS total FROM "Registration" WHERE "eventId" = ? AND "status" = ?`,
           [eventId, REGISTRATION_STATUS.WAITLIST]
         )) || { total: 0 }
       ).total
@@ -166,15 +166,15 @@ export async function createRegistration(params: {
       await db.run(
         `
           UPDATE "Registration"
-          SET status = ?, canceledAt = NULL, waitlistPosition = ?, createdAt = ?
-          WHERE id = ?
+          SET "status" = ?, "canceledAt" = NULL, "waitlistPosition" = ?, "createdAt" = ?
+          WHERE "id" = ?
         `,
         [targetStatus, targetPosition, now, existing.id]
       );
     } else {
       await db.run(
         `
-          INSERT INTO "Registration" (id, eventId, userId, status, createdAt, canceledAt, waitlistPosition)
+          INSERT INTO "Registration" ("id", "eventId", "userId", "status", "createdAt", "canceledAt", "waitlistPosition")
           VALUES (?, ?, ?, ?, ?, NULL, ?)
         `,
         [createId(), eventId, userId, targetStatus, now, targetPosition]
@@ -203,8 +203,8 @@ export async function cancelRegistrationByPhone(params: {
       `
         SELECT u.id, u.name
         FROM "User" u
-        INNER JOIN "Registration" r ON r.userId = u.id
-        WHERE r.eventId = ? AND ${buildNameMatchExpression("u.name")} = ? AND r.status != ?
+        INNER JOIN "Registration" r ON r."userId" = u."id"
+        WHERE r."eventId" = ? AND ${buildNameMatchExpression('u."name"')} = ? AND r."status" != ?
         LIMIT 1
       `,
       [eventId, nameKey, REGISTRATION_STATUS.CANCELED]
@@ -219,7 +219,7 @@ export async function cancelRegistrationByPhone(params: {
     }
 
     const registration = await db.get<{ id: string; status: string }>(
-      `SELECT id, status FROM "Registration" WHERE eventId = ? AND userId = ?`,
+      `SELECT "id", "status" FROM "Registration" WHERE "eventId" = ? AND "userId" = ?`,
       [eventId, user.id]
     );
 
@@ -230,8 +230,8 @@ export async function cancelRegistrationByPhone(params: {
     await db.run(
       `
         UPDATE "Registration"
-        SET status = ?, canceledAt = ?, waitlistPosition = NULL
-        WHERE id = ?
+        SET "status" = ?, "canceledAt" = ?, "waitlistPosition" = NULL
+        WHERE "id" = ?
       `,
       [REGISTRATION_STATUS.CANCELED, nowIso(), registration.id]
     );

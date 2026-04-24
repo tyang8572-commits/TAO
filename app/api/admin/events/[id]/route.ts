@@ -6,12 +6,12 @@ import { getEventDetail } from "@/lib/queries";
 import { eventSchema, parseEventInput } from "@/lib/validators";
 
 async function removeEvent(id: string) {
-  const existing = (await dbGet(`SELECT id FROM "Event" WHERE id = ?`, [id])) as { id: string } | undefined;
+  const existing = (await dbGet(`SELECT "id" FROM "Event" WHERE "id" = ?`, [id])) as { id: string } | undefined;
   if (!existing) {
     return NextResponse.json({ error: "活动不存在" }, { status: 404 });
   }
 
-  await dbRun(`DELETE FROM "Event" WHERE id = ?`, [id]);
+  await dbRun(`DELETE FROM "Event" WHERE "id" = ?`, [id]);
   return NextResponse.json({ success: true });
 }
 
@@ -36,7 +36,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   try {
     const body = await request.json();
     const parsed = eventSchema.parse(body);
-    const existing = (await dbGet(`SELECT id FROM "Event" WHERE id = ?`, [params.id])) as
+    const existing = (await dbGet(`SELECT "id" FROM "Event" WHERE "id" = ?`, [params.id])) as
       | { id: string }
       | undefined;
 
@@ -48,8 +48,8 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     await dbRun(
       `
         UPDATE "Event"
-        SET title = ?, eventDate = ?, startTime = ?, endTime = ?, venueName = ?, venueAddress = ?, capacity = ?, signupDeadline = ?, description = ?, status = ?, updatedAt = ?
-        WHERE id = ?
+        SET "title" = ?, "eventDate" = ?, "startTime" = ?, "endTime" = ?, "venueName" = ?, "venueAddress" = ?, "capacity" = ?, "signupDeadline" = ?, "description" = ?, "status" = ?, "updatedAt" = ?
+        WHERE "id" = ?
       `,
       [
         data.title,

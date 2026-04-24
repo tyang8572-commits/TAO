@@ -14,10 +14,10 @@ export async function DELETE(
 
   const registration = (await dbGet(
     `
-      SELECT r.eventId, u.name
+      SELECT r."eventId", u."name"
       FROM "Registration" r
-      INNER JOIN "User" u ON u.id = r.userId
-      WHERE r.id = ?
+      INNER JOIN "User" u ON u."id" = r."userId"
+      WHERE r."id" = ?
     `,
     [params.registrationId]
   )) as { eventId: string; name: string } | undefined;

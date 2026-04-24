@@ -29,7 +29,7 @@ export async function POST(request: Request) {
     await dbRun(
       `
         INSERT INTO "Event"
-        (id, title, eventDate, startTime, endTime, venueName, venueAddress, capacity, signupDeadline, description, status, createdAt, updatedAt)
+        ("id", "title", "eventDate", "startTime", "endTime", "venueName", "venueAddress", "capacity", "signupDeadline", "description", "status", "createdAt", "updatedAt")
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       [

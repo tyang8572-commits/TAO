@@ -13,22 +13,22 @@ export async function PUT(request: Request, { params }: { params: { id: string }
     const body = await request.json();
     const parsed = noticeSchema.parse(body);
 
-    const event = (await dbGet(`SELECT id FROM "Event" WHERE id = ?`, [params.id])) as { id: string } | undefined;
+    const event = (await dbGet(`SELECT "id" FROM "Event" WHERE "id" = ?`, [params.id])) as { id: string } | undefined;
 
     if (!event) {
       return NextResponse.json({ error: "活动不存在" }, { status: 404 });
     }
 
-    const existing = (await dbGet(`SELECT id FROM "Notice" WHERE eventId = ?`, [params.id])) as
+    const existing = (await dbGet(`SELECT "id" FROM "Notice" WHERE "eventId" = ?`, [params.id])) as
       | { id: string }
       | undefined;
     const content = parsed.content || "当前暂无通知。";
     const now = nowIso();
 
     if (existing) {
-      await dbRun(`UPDATE "Notice" SET content = ?, updatedAt = ? WHERE id = ?`, [content, now, existing.id]);
+      await dbRun(`UPDATE "Notice" SET "content" = ?, "updatedAt" = ? WHERE "id" = ?`, [content, now, existing.id]);
     } else {
-      await dbRun(`INSERT INTO "Notice" (id, eventId, content, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)`, [
+      await dbRun(`INSERT INTO "Notice" ("id", "eventId", "content", "createdAt", "updatedAt") VALUES (?, ?, ?, ?, ?)`, [
         createId(),
         params.id,
         content,
