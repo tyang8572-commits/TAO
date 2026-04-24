@@ -35,8 +35,8 @@ export function hasEventEnded(event: EventTimeLike, now = new Date()) {
   return combineDateAndTime(event.eventDate, event.endTime).getTime() < now.getTime();
 }
 
-export function isSignupClosed(signupDeadline: Date, now = new Date()) {
-  return signupDeadline.getTime() < now.getTime();
+export function hasEventStarted(event: Pick<EventTimeLike, "eventDate" | "startTime">, now = new Date()) {
+  return combineDateAndTime(event.eventDate, event.startTime).getTime() <= now.getTime();
 }
 
 export function formatDate(date: Date) {

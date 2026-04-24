@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { EmptyState } from "@/components/empty-state";
 import { StatusPill } from "@/components/status-pill";
-import { formatDate, formatDateTime } from "@/lib/dates";
+import { formatDate } from "@/lib/dates";
 import { getAdminEvents } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
@@ -23,9 +23,6 @@ export default async function AdminDashboardPage() {
                 {formatDate(new Date(event.eventDate))} {event.startTime} - {event.endTime}
               </p>
               <p className="mt-1 text-sm text-slate-500">{event.venueName}</p>
-              <p className="mt-1 text-sm text-slate-500">
-                截止时间：{formatDateTime(new Date(event.signupDeadline))}
-              </p>
             </div>
             <StatusPill label={event.displayStatus} />
           </div>

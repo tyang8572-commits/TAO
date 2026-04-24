@@ -1,6 +1,6 @@
 import { EVENT_STATUS, REGISTRATION_STATUS, type EventStatus } from "@/lib/constants";
 import { createId, nowIso, transaction } from "@/lib/db";
-import { hasEventEnded, isSignupClosed } from "@/lib/dates";
+import { hasEventEnded, hasEventStarted } from "@/lib/dates";
 
 type TxExecutor = {
   all<T>(query: string, params?: Array<string | number | null>): Promise<T[]>;
@@ -17,7 +17,6 @@ function ensureEventCanSignup(event: {
   eventDate: string;
   startTime: string;
   endTime: string;
-  signupDeadline: string;
 }) {
   if (event.status === EVENT_STATUS.CANCELED) {
     throw new Error("该活动已取消，无法报名");
@@ -32,8 +31,13 @@ function ensureEventCanSignup(event: {
   ) {
     throw new Error("该活动已结束，无法报名");
   }
-  if (isSignupClosed(new Date(event.signupDeadline))) {
-    throw new Error("报名已截止");
+  if (
+    hasEventStarted({
+      eventDate: new Date(event.eventDate),
+      startTime: event.startTime
+    })
+  ) {
+    throw new Error("活动已开始，当前不再接受报名");
   }
 }
 
@@ -88,7 +92,6 @@ export async function createRegistration(params: {
       eventDate: string;
       startTime: string;
       endTime: string;
-      signupDeadline: string;
     }>(`SELECT * FROM "Event" WHERE id = ?`, [eventId]);
 
     if (!event) {

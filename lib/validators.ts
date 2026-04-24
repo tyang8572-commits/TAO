@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { EVENT_STATUS } from "@/lib/constants";
+import { combineDateAndTime } from "@/lib/dates";
 
 export const signupSchema = z.object({
   name: z.string().trim().min(2, "请输入姓名").max(20, "姓名不能超过 20 个字")
@@ -30,8 +31,7 @@ export const eventSchema = z
     venueName: z.string().trim().min(2, "请输入场馆名称"),
     venueAddress: z.string().trim().min(3, "请输入场馆地址"),
     capacity: z.coerce.number().int().positive("最大人数必须大于 0"),
-    signupDeadline: z.string().min(1, "请输入报名截止时间"),
-    description: z.string().trim().min(1, "请输入活动说明"),
+    description: z.string().trim().optional().default(""),
     status: z.enum([EVENT_STATUS.OPEN, EVENT_STATUS.CANCELED, EVENT_STATUS.ENDED])
   })
   .superRefine((value, ctx) => {
@@ -45,16 +45,18 @@ export const eventSchema = z
   });
 
 export function parseEventInput(input: z.infer<typeof eventSchema>) {
+  const eventDate = new Date(`${input.date}T00:00:00`);
+
   return {
     title: input.title,
-    eventDate: new Date(`${input.date}T00:00:00`),
+    eventDate,
     startTime: input.startTime,
     endTime: input.endTime,
     venueName: input.venueName,
     venueAddress: input.venueAddress,
     capacity: input.capacity,
-    signupDeadline: new Date(input.signupDeadline),
-    description: input.description,
+    signupDeadline: combineDateAndTime(eventDate, input.startTime),
+    description: input.description || "",
     status: input.status
   };
 }

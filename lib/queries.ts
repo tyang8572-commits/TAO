@@ -1,7 +1,7 @@
 import { EVENT_STATUS, REGISTRATION_STATUS, type EventStatus, type RegistrationStatus } from "@/lib/constants";
 import { dbAll, dbGet } from "@/lib/db";
 import { getEventDisplayStatus, getRegistrationStatusLabel } from "@/lib/format";
-import { hasEventEnded, isSignupClosed } from "@/lib/dates";
+import { hasEventEnded, hasEventStarted } from "@/lib/dates";
 import type { EventDetail, EventSummary, RegistrationView } from "@/lib/types";
 
 type EventRow = {
@@ -61,20 +61,21 @@ function serializeEvent(event: EventRow, counts?: { confirmedCount?: number; wai
   const confirmedCount = counts?.confirmedCount ?? 0;
   const waitlistCount = counts?.waitlistCount ?? 0;
   const eventDate = new Date(event.eventDate);
-  const signupDeadline = new Date(event.signupDeadline);
   const ended = hasEventEnded({
     status: event.status,
     eventDate,
     startTime: event.startTime,
     endTime: event.endTime
   });
-  const deadlinePassed = isSignupClosed(signupDeadline);
+  const started = hasEventStarted({
+    eventDate,
+    startTime: event.startTime
+  });
   const displayStatus = getEventDisplayStatus({
     status: event.status,
     eventDate,
     startTime: event.startTime,
     endTime: event.endTime,
-    signupDeadline,
     confirmedCount,
     capacity: Number(event.capacity)
   });
@@ -88,7 +89,6 @@ function serializeEvent(event: EventRow, counts?: { confirmedCount?: number; wai
     venueName: event.venueName,
     venueAddress: event.venueAddress,
     capacity: Number(event.capacity),
-    signupDeadline: signupDeadline.toISOString(),
     description: event.description,
     notice: event.notice,
     status: event.status,
@@ -96,8 +96,8 @@ function serializeEvent(event: EventRow, counts?: { confirmedCount?: number; wai
     confirmedCount,
     waitlistCount,
     remainingSpots: Math.max(Number(event.capacity) - confirmedCount, 0),
-    canRegister: event.status === EVENT_STATUS.OPEN && !ended && !deadlinePassed,
-    deadlinePassed,
+    canRegister: event.status === EVENT_STATUS.OPEN && !ended && !started,
+    started,
     ended
   };
 }

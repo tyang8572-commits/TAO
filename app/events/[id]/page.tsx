@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { EVENT_STATUS } from "@/lib/constants";
 import { RegistrationPanel } from "@/components/registration-panel";
 import { StatusPill } from "@/components/status-pill";
-import { formatDateLong, formatDateTime } from "@/lib/dates";
+import { formatDateLong } from "@/lib/dates";
 import { getEventDetail } from "@/lib/queries";
 
 export const dynamic = "force-dynamic";
@@ -42,10 +42,12 @@ export default async function EventDetailPage({ params }: { params: { id: string
             <p className="mt-1 font-medium text-slate-900">{event.venueName}</p>
             <p className="mt-1 text-slate-500">{event.venueAddress}</p>
           </div>
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs text-slate-400">活动说明</p>
-            <p className="mt-1 whitespace-pre-wrap leading-6 text-slate-700">{event.description}</p>
-          </div>
+          {event.description.trim() ? (
+            <div className="rounded-2xl bg-slate-50 p-4">
+              <p className="text-xs text-slate-400">活动说明</p>
+              <p className="mt-1 whitespace-pre-wrap leading-6 text-slate-700">{event.description}</p>
+            </div>
+          ) : null}
           <div className="grid grid-cols-2 gap-3">
             <div className="rounded-2xl bg-brand-50 p-4">
               <p className="text-xs text-brand-600">报名人数</p>
@@ -57,10 +59,6 @@ export default async function EventDetailPage({ params }: { params: { id: string
               <p className="text-xs text-amber-600">候补人数</p>
               <p className="mt-1 text-lg font-bold text-amber-700">{event.waitlistCount}</p>
             </div>
-          </div>
-          <div className="rounded-2xl bg-slate-50 p-4">
-            <p className="text-xs text-slate-400">报名截止时间</p>
-            <p className="mt-1 font-medium text-slate-900">{formatDateTime(new Date(event.signupDeadline))}</p>
           </div>
         </div>
       </section>
@@ -76,7 +74,7 @@ export default async function EventDetailPage({ params }: { params: { id: string
         eventId={event.id}
         canRegister={event.canRegister}
         displayStatus={event.displayStatus}
-        deadlinePassed={event.deadlinePassed}
+        started={event.started}
         ended={event.ended}
         canceled={event.status === EVENT_STATUS.CANCELED}
       />

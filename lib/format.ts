@@ -1,7 +1,7 @@
 import clsx from "clsx";
 
 import { EVENT_STATUS, REGISTRATION_STATUS, type EventStatus, type RegistrationStatus } from "@/lib/constants";
-import { hasEventEnded, isSignupClosed } from "@/lib/dates";
+import { hasEventEnded, hasEventStarted } from "@/lib/dates";
 
 export function normalizePhone(phone: string) {
   return phone.replace(/[^\d+]/g, "").trim();
@@ -16,14 +16,13 @@ export function getEventDisplayStatus(input: {
   eventDate: Date;
   startTime: string;
   endTime: string;
-  signupDeadline: Date;
   confirmedCount: number;
   capacity: number;
 }) {
   if (input.status === EVENT_STATUS.CANCELED) return "已取消";
   if (hasEventEnded(input)) return "已结束";
+  if (hasEventStarted(input)) return "已开始";
   if (input.confirmedCount >= input.capacity) return "已满";
-  if (isSignupClosed(input.signupDeadline)) return "报名截止";
   return "报名中";
 }
 

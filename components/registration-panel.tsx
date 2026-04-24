@@ -7,7 +7,7 @@ type Props = {
   eventId: string;
   canRegister: boolean;
   displayStatus: string;
-  deadlinePassed: boolean;
+  started: boolean;
   ended: boolean;
   canceled: boolean;
 };
@@ -16,7 +16,7 @@ export function RegistrationPanel({
   eventId,
   canRegister,
   displayStatus,
-  deadlinePassed,
+  started,
   ended,
   canceled
 }: Props) {
@@ -76,7 +76,7 @@ export function RegistrationPanel({
         <div className="mt-4 rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-600">
           {canceled && "活动已取消，当前仅支持查看信息。"}
           {!canceled && ended && "活动已结束，当前仅支持查看信息。"}
-          {!canceled && !ended && deadlinePassed && "报名截止时间已过，暂时不能报名。"}
+          {!canceled && !ended && started && "活动已开始，当前不再接受报名。"}
         </div>
       )}
 

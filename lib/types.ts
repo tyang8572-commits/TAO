@@ -9,7 +9,6 @@ export type EventSummary = {
   venueName: string;
   venueAddress: string;
   capacity: number;
-  signupDeadline: string;
   description: string;
   notice: string | null;
   status: EventStatus;
@@ -18,7 +17,7 @@ export type EventSummary = {
   waitlistCount: number;
   remainingSpots: number;
   canRegister: boolean;
-  deadlinePassed: boolean;
+  started: boolean;
   ended: boolean;
 };
 

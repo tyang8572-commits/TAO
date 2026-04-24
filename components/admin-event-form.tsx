@@ -16,7 +16,6 @@ type Props = {
     venueName: string;
     venueAddress: string;
     capacity: number;
-    signupDeadline: string;
     description: string;
     status: EventStatus;
   };
@@ -30,7 +29,6 @@ const defaultValues = {
   venueName: "",
   venueAddress: "",
   capacity: 16,
-  signupDeadline: "",
   description: "",
   status: EVENT_STATUS.OPEN
 };
@@ -104,11 +102,6 @@ export function AdminEventForm({ mode, eventId, initialValues }: Props) {
           value={form.capacity}
           onChange={(e) => setForm({ ...form, capacity: Number(e.target.value) })}
         />
-        <input
-          type="datetime-local"
-          value={form.signupDeadline}
-          onChange={(e) => setForm({ ...form, signupDeadline: e.target.value })}
-        />
         <select value={form.status} onChange={(e) => setForm({ ...form, status: e.target.value as EventStatus })}>
           <option value={EVENT_STATUS.OPEN}>报名中</option>
           <option value={EVENT_STATUS.CANCELED}>已取消</option>
@@ -116,7 +109,7 @@ export function AdminEventForm({ mode, eventId, initialValues }: Props) {
         </select>
         <textarea
           rows={6}
-          placeholder="活动说明"
+          placeholder="活动说明（选填）"
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
         />

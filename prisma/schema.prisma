@@ -27,7 +27,7 @@ model Event {
   venueAddress   String
   capacity       Int
   signupDeadline DateTime
-  description    String
+  description    String         @default("")
   status         String         @default("OPEN")
   registrations  Registration[]
   notice         Notice?

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 
 import { AdminEventForm } from "@/components/admin-event-form";
-import { toDateInputValue, toDateTimeLocalString } from "@/lib/dates";
+import { toDateInputValue } from "@/lib/dates";
 import { dbGet } from "@/lib/db";
 
 export default async function AdminEditEventPage({ params }: { params: { id: string } }) {
@@ -18,7 +18,6 @@ export default async function AdminEditEventPage({ params }: { params: { id: str
         venueName: string;
         venueAddress: string;
         capacity: number;
-        signupDeadline: string;
         description: string;
         status: "OPEN" | "CANCELED" | "ENDED";
       }
@@ -42,7 +41,6 @@ export default async function AdminEditEventPage({ params }: { params: { id: str
         venueName: event.venueName,
         venueAddress: event.venueAddress,
         capacity: Number(event.capacity),
-        signupDeadline: toDateTimeLocalString(new Date(event.signupDeadline)),
         description: event.description,
         status: event.status
       }}
