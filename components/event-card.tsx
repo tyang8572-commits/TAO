@@ -18,7 +18,7 @@ export function EventCard({ event }: { event: EventSummary }) {
         <StatusPill label={event.displayStatus} />
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3 text-sm text-slate-600">
+      <div className="mt-4 grid grid-cols-1 gap-3 text-sm text-slate-600 sm:grid-cols-2">
         <div className="rounded-2xl bg-slate-50 p-3">
           <p className="text-xs text-slate-400">日期</p>
           <p className="mt-1 font-medium text-slate-900">{formatDate(new Date(event.eventDate))}</p>

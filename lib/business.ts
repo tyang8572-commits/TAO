@@ -1,6 +1,7 @@
 import { EVENT_STATUS, REGISTRATION_STATUS, type EventStatus } from "@/lib/constants";
 import { createId, nowIso, transaction } from "@/lib/db";
 import { hasEventEnded, hasEventStarted } from "@/lib/dates";
+import { buildNameMatchExpression, getNameMatchKey, normalizeName } from "@/lib/names";
 
 type TxExecutor = {
   all<T>(query: string, params?: Array<string | number | null>): Promise<T[]>;
@@ -82,7 +83,9 @@ export async function createRegistration(params: {
   name: string;
   bypassEventRestriction?: boolean;
 }) {
-  const { eventId, name, bypassEventRestriction = false } = params;
+  const normalizedName = normalizeName(params.name);
+  const nameKey = getNameMatchKey(normalizedName);
+  const { eventId, bypassEventRestriction = false } = params;
 
   return transaction(async (db) => {
     const event = await db.get<{
@@ -103,17 +106,20 @@ export async function createRegistration(params: {
     }
 
     const now = nowIso();
-    const existingUser = await db.get<{ id: string }>(`SELECT id FROM "User" WHERE name = ? LIMIT 1`, [name]);
+    const existingUser = await db.get<{ id: string }>(
+      `SELECT id FROM "User" WHERE ${buildNameMatchExpression("name")} = ? LIMIT 1`,
+      [nameKey]
+    );
     let userId = existingUser?.id;
 
     if (userId) {
-      await db.run(`UPDATE "User" SET name = ?, updatedAt = ? WHERE id = ?`, [name, now, userId]);
+      await db.run(`UPDATE "User" SET name = ?, updatedAt = ? WHERE id = ?`, [normalizedName, now, userId]);
     } else {
       userId = createId();
       await db.run(`INSERT INTO "User" (id, name, phone, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)`, [
         userId,
-        name,
-        buildInternalPhone(name),
+        normalizedName,
+        buildInternalPhone(nameKey),
         now,
         now
       ]);
@@ -124,10 +130,10 @@ export async function createRegistration(params: {
         SELECT r.id, r.status
         FROM "Registration" r
         INNER JOIN "User" u ON u.id = r.userId
-        WHERE r.eventId = ? AND u.name = ?
+        WHERE r.eventId = ? AND ${buildNameMatchExpression("u.name")} = ?
         LIMIT 1
       `,
-      [eventId, name]
+      [eventId, nameKey]
     );
 
     if (existing && existing.status !== REGISTRATION_STATUS.CANCELED) {
@@ -188,7 +194,9 @@ export async function cancelRegistrationByPhone(params: {
   name: string;
   requireNameMatch?: boolean;
 }) {
-  const { eventId, name, requireNameMatch = true } = params;
+  const normalizedName = normalizeName(params.name);
+  const nameKey = getNameMatchKey(normalizedName);
+  const { eventId, requireNameMatch = true } = params;
 
   return transaction(async (db) => {
     const user = await db.get<{ id: string; name: string }>(
@@ -196,17 +204,17 @@ export async function cancelRegistrationByPhone(params: {
         SELECT u.id, u.name
         FROM "User" u
         INNER JOIN "Registration" r ON r.userId = u.id
-        WHERE r.eventId = ? AND u.name = ? AND r.status != ?
+        WHERE r.eventId = ? AND ${buildNameMatchExpression("u.name")} = ? AND r.status != ?
         LIMIT 1
       `,
-      [eventId, name, REGISTRATION_STATUS.CANCELED]
+      [eventId, nameKey, REGISTRATION_STATUS.CANCELED]
     );
 
     if (!user) {
       throw new Error("未找到报名记录");
     }
 
-    if (requireNameMatch && user.name !== name) {
+    if (requireNameMatch && getNameMatchKey(user.name) !== nameKey) {
       throw new Error("姓名不匹配");
     }
 

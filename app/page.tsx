@@ -17,7 +17,7 @@ export default async function HomePage() {
         <p className="mt-4 text-sm leading-6 text-slate-200">
           第一版聚焦最核心的报名流程，适合直接在微信里打开使用。
         </p>
-        <div className="mt-6 flex gap-3">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
           <Link href="/my" className="rounded-2xl bg-white px-4 py-3 text-sm font-semibold text-ink">
             查询我的报名
           </Link>

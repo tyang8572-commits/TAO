@@ -1,9 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 
 import type { RegistrationStatus } from "@/lib/constants";
 import { formatDate } from "@/lib/dates";
+import { normalizeName } from "@/lib/names";
 import { StatusPill } from "@/components/status-pill";
 
 type ResultItem = {
@@ -27,12 +29,17 @@ export function PhoneQueryForm() {
   const [error, setError] = useState<string | null>(null);
 
   const onSubmit = async () => {
+    const trimmedName = normalizeName(name);
     setLoading(true);
     setMessage(null);
     setError(null);
+    setName(trimmedName);
 
     try {
-      const response = await fetch(`/api/my-registrations?name=${encodeURIComponent(name)}`);
+      const response = await fetch(`/api/my-registrations?name=${encodeURIComponent(trimmedName)}`, {
+        credentials: "same-origin",
+        cache: "no-store"
+      });
       const result = await response.json();
 
       if (!response.ok) {
@@ -81,6 +88,12 @@ export function PhoneQueryForm() {
             </div>
             <StatusPill label={item.statusLabel} />
           </div>
+          <Link
+            href={`/events/${item.eventId}`}
+            className="mt-4 inline-flex rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-700"
+          >
+            查看活动详情
+          </Link>
         </div>
       ))}
     </div>

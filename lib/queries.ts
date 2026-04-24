@@ -2,6 +2,7 @@ import { EVENT_STATUS, REGISTRATION_STATUS, type EventStatus, type RegistrationS
 import { dbAll, dbGet } from "@/lib/db";
 import { getEventDisplayStatus, getRegistrationStatusLabel } from "@/lib/format";
 import { hasEventEnded, hasEventStarted } from "@/lib/dates";
+import { buildNameMatchExpression, getNameMatchKey } from "@/lib/names";
 import type { EventDetail, EventSummary, RegistrationView } from "@/lib/types";
 
 type EventRow = {
@@ -203,6 +204,8 @@ export async function getEventDetail(eventId: string): Promise<EventDetail | nul
 }
 
 export async function getMyRegistrations(name: string) {
+  const nameKey = getNameMatchKey(name);
+
   const rows = await dbAll<{
     id: string;
     eventId: string;
@@ -228,10 +231,10 @@ export async function getMyRegistrations(name: string) {
       FROM "Registration" r
       INNER JOIN "User" u ON u.id = r.userId
       INNER JOIN "Event" e ON e.id = r.eventId
-      WHERE u.name = ?
+      WHERE ${buildNameMatchExpression("u.name")} = ?
       ORDER BY r.createdAt DESC
     `,
-    [name]
+    [nameKey]
   );
 
   return rows.map((item) => ({

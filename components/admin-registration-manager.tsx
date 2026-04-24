@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { REGISTRATION_STATUS } from "@/lib/constants";
 import { formatDateTime } from "@/lib/dates";
+import { normalizeName } from "@/lib/names";
 import type { RegistrationView } from "@/lib/types";
 import { StatusPill } from "@/components/status-pill";
 
@@ -73,17 +74,21 @@ export function AdminRegistrationManager({ eventId, confirmedList, waitlistList 
   };
 
   const onAdd = async () => {
+    const normalizedName = normalizeName(form.name);
     setLoading(true);
     setError(null);
     setMessage(null);
+    setForm({ name: normalizedName });
 
     try {
       const response = await fetch(`/api/admin/events/${eventId}/registrations`, {
         method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(form)
+        body: JSON.stringify({ name: normalizedName })
       });
 
       const result = await response.json();
@@ -108,7 +113,9 @@ export function AdminRegistrationManager({ eventId, confirmedList, waitlistList 
 
     try {
       const response = await fetch(`/api/admin/events/${eventId}/registrations/${registrationId}`, {
-        method: "DELETE"
+        method: "DELETE",
+        credentials: "same-origin",
+        cache: "no-store"
       });
 
       const result = await response.json();

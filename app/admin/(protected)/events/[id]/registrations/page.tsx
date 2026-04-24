@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 
 import { AdminNoticeForm } from "@/components/admin-notice-form";
 import { AdminRegistrationManager } from "@/components/admin-registration-manager";
@@ -11,7 +10,15 @@ export default async function AdminRegistrationsPage({ params }: { params: { id:
   const event = await getEventDetail(params.id);
 
   if (!event) {
-    notFound();
+    return (
+      <div className="rounded-[28px] border border-white/80 bg-white p-6 shadow-card">
+        <h1 className="text-xl font-bold text-ink">活动不存在或暂时无法读取</h1>
+        <p className="mt-2 text-sm leading-6 text-slate-500">如果手机端偶发进入到这个页面，请先返回后台首页再重新打开；正式上线前建议切到共享数据库以避免这种情况。</p>
+        <Link href="/admin" className="mt-5 inline-flex rounded-2xl bg-ink px-4 py-3 text-sm font-semibold text-white">
+          返回活动管理
+        </Link>
+      </div>
+    );
   }
 
   return (
@@ -32,7 +39,7 @@ export default async function AdminRegistrationsPage({ params }: { params: { id:
             导出 CSV
           </a>
         </div>
-        <div className="mt-4 flex gap-3">
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row">
           <Link href={`/admin/events/${event.id}/edit`} className="rounded-2xl bg-slate-100 px-4 py-3 text-sm font-semibold text-slate-700">
             编辑活动
           </Link>

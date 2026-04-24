@@ -3,6 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { normalizeName } from "@/lib/names";
+
 type Props = {
   eventId: string;
   canRegister: boolean;
@@ -29,20 +31,22 @@ export function RegistrationPanel({
   const [loading, setLoading] = useState(false);
 
   const submit = async (mode: "signup" | "cancel") => {
+    const payload = mode === "signup" ? signupData : cancelData;
+    const normalizedName = normalizeName(payload.name);
     setLoading(true);
     setError(null);
     setMessage(null);
-
-    const payload = mode === "signup" ? signupData : cancelData;
     const endpoint = mode === "signup" ? "register" : "cancel";
 
     try {
       const response = await fetch(`/api/events/${eventId}/${endpoint}`, {
         method: "POST",
+        credentials: "same-origin",
+        cache: "no-store",
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(payload)
+        body: JSON.stringify({ name: normalizedName })
       });
 
       const result = await response.json();

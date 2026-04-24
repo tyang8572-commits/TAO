@@ -70,6 +70,51 @@ export default async function EventDetailPage({ params }: { params: { id: string
         </p>
       </section>
 
+      <section className="space-y-4 rounded-[28px] border border-white/80 bg-white p-5 shadow-card">
+        <div>
+          <h2 className="text-lg font-bold text-ink">报名名单</h2>
+          <p className="mt-2 text-sm text-slate-500">所有人都可以查看当前正式名单和候补顺序。</p>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="rounded-2xl bg-brand-50 p-4">
+            <p className="text-sm font-semibold text-brand-700">正式名单</p>
+            <div className="mt-3 space-y-2">
+              {event.confirmedList.length ? (
+                event.confirmedList.map((item, index) => (
+                  <div key={item.id} className="flex items-center justify-between rounded-2xl bg-white/80 px-3 py-2 text-sm">
+                    <span className="text-slate-700">
+                      {index + 1}. {item.name}
+                    </span>
+                    <StatusPill label="正式" />
+                  </div>
+                ))
+              ) : (
+                <p className="rounded-2xl bg-white/70 px-3 py-3 text-sm text-slate-500">当前还没有正式报名成员。</p>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-2xl bg-amber-50 p-4">
+            <p className="text-sm font-semibold text-amber-700">候补名单</p>
+            <div className="mt-3 space-y-2">
+              {event.waitlistList.length ? (
+                event.waitlistList.map((item, index) => (
+                  <div key={item.id} className="flex items-center justify-between rounded-2xl bg-white/80 px-3 py-2 text-sm">
+                    <span className="text-slate-700">
+                      第 {index + 1} 位 {item.name}
+                    </span>
+                    <StatusPill label="候补" />
+                  </div>
+                ))
+              ) : (
+                <p className="rounded-2xl bg-white/70 px-3 py-3 text-sm text-slate-500">当前还没有候补成员。</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </section>
+
       <RegistrationPanel
         eventId={event.id}
         canRegister={event.canRegister}
